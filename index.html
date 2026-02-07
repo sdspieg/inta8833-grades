@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INTA 8833 - Grade Distribution</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 2rem;
+    line-height: 1.6;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.3rem;
+    color: #f8fafc;
+  }
+  .subtitle {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .card {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #334155;
+  }
+  .card.full { grid-column: 1 / -1; }
+  .card h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.8rem;
+  }
+  .chart-container {
+    position: relative;
+    height: 300px;
+  }
+  .chart-container.tall {
+    height: 380px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  .stat-box {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .stat-box .label {
+    font-size: 0.7rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.3rem;
+  }
+  .stat-box .value {
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+  .stat-box .detail {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.2rem;
+  }
+  .rr1 { color: #60a5fa; }
+  .rr2 { color: #f472b6; }
+  .boost { color: #34d399; }
+  .base-col { color: #94a3b8; }
+
+  .legend-row {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: #94a3b8;
+  }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  th {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 2px solid #334155;
+    color: #94a3b8;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  td {
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid #1e293b;
+  }
+  tr:nth-child(even) td { background: #0f172a22; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .highlight { color: #34d399; font-weight: 600; }
+
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    body { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<h1>INTA 8833 European Security</h1>
+<p class="subtitle">Reading Reflections 1 & 2 &mdash; Grade Distribution (Anonymous) &mdash; Spring 2026</p>
+
+<div class="legend-row">
+  <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> RR1 Base</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div> RR1 Adjusted</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#be185d"></div> RR2 Base</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f472b6"></div> RR2 Adjusted</div>
+</div>
+
+<div class="grid">
+
+  <!-- Summary Stats -->
+  <div class="card full">
+    <h2>Summary Statistics</h2>
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="label">RR1 Base Avg</div>
+        <div class="value base-col">73.4</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">RR1 Adjusted Avg</div>
+        <div class="value rr1">75.8</div>
+        <div class="detail boost">+2.4</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">RR2 Base Avg</div>
+        <div class="value base-col">65.3</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">RR2 Adjusted Avg</div>
+        <div class="value rr2">69.0</div>
+        <div class="detail boost">+3.7</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grade Distribution Bar Chart -->
+  <div class="card">
+    <h2>Grade Distribution by Category</h2>
+    <div class="chart-container">
+      <canvas id="gradeDistChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Boost Impact -->
+  <div class="card">
+    <h2>Boost Impact: Students Moving Up a Grade</h2>
+    <div class="chart-container">
+      <canvas id="boostImpactChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Dot Strip Plot - RR1 -->
+  <div class="card">
+    <h2>RR1 Individual Scores (Anonymous)</h2>
+    <div class="chart-container">
+      <canvas id="rr1DotChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Dot Strip Plot - RR2 -->
+  <div class="card">
+    <h2>RR2 Individual Scores (Anonymous)</h2>
+    <div class="chart-container">
+      <canvas id="rr2DotChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Overall Distribution -->
+  <div class="card full">
+    <h2>Combined Score Distribution (Both RRs, n=36)</h2>
+    <div class="chart-container tall">
+      <canvas id="histogramChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Detailed Table -->
+  <div class="card full">
+    <h2>Detailed Breakdown</h2>
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th class="num">RR1 Base</th>
+          <th class="num">RR1 Adj.</th>
+          <th class="num">RR2 Base</th>
+          <th class="num">RR2 Adj.</th>
+          <th class="num">Overall Base</th>
+          <th class="num">Overall Adj.</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>A (85-100)</td>
+          <td class="num">3</td>
+          <td class="num highlight">6</td>
+          <td class="num">1</td>
+          <td class="num highlight">3</td>
+          <td class="num">4</td>
+          <td class="num highlight">9</td>
+        </tr>
+        <tr>
+          <td>B (70-84)</td>
+          <td class="num">9</td>
+          <td class="num">7</td>
+          <td class="num">6</td>
+          <td class="num">6</td>
+          <td class="num">15</td>
+          <td class="num">13</td>
+        </tr>
+        <tr>
+          <td>C (50-69)</td>
+          <td class="num">6</td>
+          <td class="num">5</td>
+          <td class="num">7</td>
+          <td class="num">5</td>
+          <td class="num">13</td>
+          <td class="num">10</td>
+        </tr>
+        <tr>
+          <td>D/F (0-49)</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">4</td>
+          <td class="num">4</td>
+          <td class="num">4</td>
+          <td class="num">4</td>
+        </tr>
+        <tr style="border-top: 2px solid #334155;">
+          <td><strong>Average</strong></td>
+          <td class="num"><strong>73.4</strong></td>
+          <td class="num highlight"><strong>75.8</strong></td>
+          <td class="num"><strong>65.3</strong></td>
+          <td class="num highlight"><strong>69.0</strong></td>
+          <td class="num"><strong>69.4</strong></td>
+          <td class="num highlight"><strong>72.4</strong></td>
+        </tr>
+        <tr>
+          <td>Median</td>
+          <td class="num">75.5</td>
+          <td class="num">76.0</td>
+          <td class="num">67.0</td>
+          <td class="num">70.5</td>
+          <td class="num">70.5</td>
+          <td class="num">73.5</td>
+        </tr>
+        <tr>
+          <td>Min</td>
+          <td class="num">51</td>
+          <td class="num">51</td>
+          <td class="num">40</td>
+          <td class="num">40</td>
+          <td class="num">40</td>
+          <td class="num">40</td>
+        </tr>
+        <tr>
+          <td>Max</td>
+          <td class="num">90</td>
+          <td class="num">95</td>
+          <td class="num">86</td>
+          <td class="num">96</td>
+          <td class="num">90</td>
+          <td class="num">96</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+// ── Data ──
+const rr1Base = [86,86,51,75,54,82,67,76,68,69,83,56,72,73,81,90,79,76];
+const rr1Adj  = [94,94,51,82,57,90,67,79,68,74,86,56,75,76,88,95,82,76];
+const rr2Base = [84,86,42,49,64,55,81,68,77,53,74,69,40,46,68,65,84,70];
+const rr2Adj  = [94,96,42,49,69,60,84,68,82,53,84,72,40,46,73,68,89,73];
+
+function countGrades(scores) {
+  const a = scores.filter(s => s >= 85).length;
+  const b = scores.filter(s => s >= 70 && s < 85).length;
+  const c = scores.filter(s => s >= 50 && s < 70).length;
+  const d = scores.filter(s => s < 50).length;
+  return [a, b, c, d];
+}
+
+const cats = ['A (85-100)', 'B (70-84)', 'C (50-69)', 'D/F (0-49)'];
+
+// Chart defaults
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.borderColor = '#334155';
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+// ── 1. Grade Distribution Grouped Bar ──
+new Chart(document.getElementById('gradeDistChart'), {
+  type: 'bar',
+  data: {
+    labels: cats,
+    datasets: [
+      { label: 'RR1 Base', data: countGrades(rr1Base), backgroundColor: '#3b82f680', borderColor: '#3b82f6', borderWidth: 1 },
+      { label: 'RR1 Adj.', data: countGrades(rr1Adj), backgroundColor: '#60a5fa80', borderColor: '#60a5fa', borderWidth: 1 },
+      { label: 'RR2 Base', data: countGrades(rr2Base), backgroundColor: '#be185d80', borderColor: '#be185d', borderWidth: 1 },
+      { label: 'RR2 Adj.', data: countGrades(rr2Adj), backgroundColor: '#f472b680', borderColor: '#f472b6', borderWidth: 1 },
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { size: 11 } } }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { stepSize: 1 },
+        title: { display: true, text: 'Number of Students', font: { size: 11 } }
+      }
+    }
+  }
+});
+
+// ── 2. Boost Impact Stacked ──
+// Show how many students moved up a grade category
+function gradeCategory(score) {
+  if (score >= 85) return 'A';
+  if (score >= 70) return 'B';
+  if (score >= 50) return 'C';
+  return 'D/F';
+}
+
+let rr1MovedUp = 0, rr1Stayed = 0, rr2MovedUp = 0, rr2Stayed = 0;
+let rr1TotalBoost = 0, rr2TotalBoost = 0;
+let rr1BoostedCount = 0, rr2BoostedCount = 0;
+
+for (let i = 0; i < 18; i++) {
+  const diff1 = rr1Adj[i] - rr1Base[i];
+  const diff2 = rr2Adj[i] - rr2Base[i];
+  if (diff1 > 0) { rr1BoostedCount++; rr1TotalBoost += diff1; }
+  if (diff2 > 0) { rr2BoostedCount++; rr2TotalBoost += diff2; }
+  if (gradeCategory(rr1Adj[i]) !== gradeCategory(rr1Base[i])) rr1MovedUp++;
+  else rr1Stayed++;
+  if (gradeCategory(rr2Adj[i]) !== gradeCategory(rr2Base[i])) rr2MovedUp++;
+  else rr2Stayed++;
+}
+
+new Chart(document.getElementById('boostImpactChart'), {
+  type: 'bar',
+  data: {
+    labels: ['RR1', 'RR2'],
+    datasets: [
+      {
+        label: 'Moved up a grade',
+        data: [rr1MovedUp, rr2MovedUp],
+        backgroundColor: '#34d39980',
+        borderColor: '#34d399',
+        borderWidth: 1
+      },
+      {
+        label: 'Same grade (boosted)',
+        data: [rr1BoostedCount - rr1MovedUp, rr2BoostedCount - rr2MovedUp],
+        backgroundColor: '#fbbf2480',
+        borderColor: '#fbbf24',
+        borderWidth: 1
+      },
+      {
+        label: 'No boost',
+        data: [18 - rr1BoostedCount, 18 - rr2BoostedCount],
+        backgroundColor: '#64748b40',
+        borderColor: '#64748b',
+        borderWidth: 1
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { size: 11 } } },
+      tooltip: {
+        callbacks: {
+          afterBody: function(ctx) {
+            const idx = ctx[0].dataIndex;
+            if (idx === 0) return `\nTotal students boosted: ${rr1BoostedCount}/18\nAvg boost: ${(rr1TotalBoost/rr1BoostedCount).toFixed(1)} pts`;
+            return `\nTotal students boosted: ${rr2BoostedCount}/18\nAvg boost: ${(rr2TotalBoost/rr2BoostedCount).toFixed(1)} pts`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: { stacked: true },
+      y: {
+        stacked: true,
+        beginAtZero: true,
+        ticks: { stepSize: 2 },
+        title: { display: true, text: 'Number of Students', font: { size: 11 } }
+      }
+    }
+  }
+});
+
+// ── 3 & 4. Dot Strip Plots ──
+function makeDotChart(canvasId, base, adj, baseColor, adjColor, label) {
+  const sorted = base.map((b, i) => ({ base: b, adj: adj[i], boost: adj[i] - b }))
+    .sort((a, b) => a.base - b.base);
+
+  const labels = sorted.map((_, i) => `S${i + 1}`);
+
+  new Chart(document.getElementById(canvasId), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Base Score',
+          data: sorted.map(s => s.base),
+          backgroundColor: baseColor + '90',
+          borderColor: baseColor,
+          borderWidth: 1,
+          borderRadius: 2,
+        },
+        {
+          label: 'Boost',
+          data: sorted.map(s => s.boost),
+          backgroundColor: '#34d39990',
+          borderColor: '#34d399',
+          borderWidth: 1,
+          borderRadius: { topLeft: 2, topRight: 2 },
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              const i = ctx.dataIndex;
+              if (ctx.datasetIndex === 0) return `Base: ${sorted[i].base}`;
+              if (sorted[i].boost > 0) return `Boost: +${sorted[i].boost} → ${sorted[i].adj}`;
+              return 'No boost';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: { font: { size: 9 } }
+        },
+        y: {
+          stacked: true,
+          min: 30,
+          max: 100,
+          ticks: { stepSize: 10 },
+          title: { display: true, text: 'Score', font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+makeDotChart('rr1DotChart', rr1Base, rr1Adj, '#3b82f6', '#60a5fa', 'RR1');
+makeDotChart('rr2DotChart', rr2Base, rr2Adj, '#be185d', '#f472b6', 'RR2');
+
+// ── 5. Combined Histogram ──
+function buildHistBins(scores, binSize) {
+  const bins = {};
+  for (let start = 30; start <= 95; start += binSize) {
+    bins[start] = 0;
+  }
+  scores.forEach(s => {
+    const bin = Math.floor(s / binSize) * binSize;
+    const key = Math.max(30, Math.min(bin, 95));
+    bins[key] = (bins[key] || 0) + 1;
+  });
+  return bins;
+}
+
+const binSize = 5;
+const binLabels = [];
+for (let s = 30; s <= 95; s += binSize) {
+  binLabels.push(`${s}-${s + binSize - 1}`);
+}
+
+const allBase = [...rr1Base, ...rr2Base];
+const allAdj = [...rr1Adj, ...rr2Adj];
+const baseBins = buildHistBins(allBase, binSize);
+const adjBins = buildHistBins(allAdj, binSize);
+
+new Chart(document.getElementById('histogramChart'), {
+  type: 'bar',
+  data: {
+    labels: binLabels,
+    datasets: [
+      {
+        label: 'Base Scores',
+        data: Object.values(baseBins),
+        backgroundColor: '#64748b80',
+        borderColor: '#64748b',
+        borderWidth: 1,
+        borderRadius: 2,
+      },
+      {
+        label: 'Adjusted Scores',
+        data: Object.values(adjBins),
+        backgroundColor: '#34d39960',
+        borderColor: '#34d399',
+        borderWidth: 1,
+        borderRadius: 2,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { size: 11 } } },
+      annotation: {}
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { stepSize: 1 },
+        title: { display: true, text: 'Number of Submissions', font: { size: 11 } }
+      },
+      x: {
+        title: { display: true, text: 'Score Range', font: { size: 11 } },
+        ticks: { font: { size: 10 } }
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
