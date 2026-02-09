@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INTA 8833 - Grade Distribution</title>
+<title>INTA 8833 - Grade Distribution (Post-Curve)</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -26,7 +26,14 @@
     text-align: center;
     color: #94a3b8;
     font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  .curve-note {
+    text-align: center;
+    color: #34d399;
+    font-size: 0.8rem;
     margin-bottom: 2rem;
+    font-style: italic;
   }
   .grid {
     display: grid;
@@ -63,6 +70,9 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
   }
+  .stats-grid.six {
+    grid-template-columns: repeat(6, 1fr);
+  }
   .stat-box {
     background: #0f172a;
     border-radius: 8px;
@@ -89,6 +99,7 @@
   .rr2 { color: #f472b6; }
   .boost { color: #34d399; }
   .base-col { color: #94a3b8; }
+  .warn { color: #fbbf24; }
 
   .legend-row {
     display: flex;
@@ -136,6 +147,7 @@
   @media (max-width: 800px) {
     .grid { grid-template-columns: 1fr; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .stats-grid.six { grid-template-columns: repeat(3, 1fr); }
     body { padding: 1rem; }
   }
 </style>
@@ -144,12 +156,13 @@
 
 <h1>INTA 8833 European Security</h1>
 <p class="subtitle">Reading Reflections 1 & 2 &mdash; Grade Distribution (Anonymous) &mdash; Spring 2026</p>
+<p class="curve-note">+10 calibration curve applied &bull; Floor of 60 for submitted work &bull; Bonuses folded in</p>
 
 <div class="legend-row">
-  <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> RR1 Base</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div> RR1 Adjusted</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#be185d"></div> RR2 Base</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#f472b6"></div> RR2 Adjusted</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> RR1 Pre-Curve</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div> RR1 Post-Curve</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#be185d"></div> RR2 Pre-Curve</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f472b6"></div> RR2 Post-Curve</div>
 </div>
 
 <div class="grid">
@@ -157,24 +170,34 @@
   <!-- Summary Stats -->
   <div class="card full">
     <h2>Summary Statistics</h2>
-    <div class="stats-grid">
+    <div class="stats-grid six">
       <div class="stat-box">
-        <div class="label">RR1 Base Avg</div>
-        <div class="value base-col">73.4</div>
+        <div class="label">RR1 Pre-Curve</div>
+        <div class="value base-col">77.2</div>
       </div>
       <div class="stat-box">
-        <div class="label">RR1 Adjusted Avg</div>
-        <div class="value rr1">75.8</div>
-        <div class="detail boost">+2.4</div>
+        <div class="label">RR1 Post-Curve</div>
+        <div class="value rr1">86.5</div>
+        <div class="detail boost">+9.3</div>
       </div>
       <div class="stat-box">
-        <div class="label">RR2 Base Avg</div>
-        <div class="value base-col">65.3</div>
+        <div class="label">RR2 Pre-Curve</div>
+        <div class="value base-col">69.0</div>
       </div>
       <div class="stat-box">
-        <div class="label">RR2 Adjusted Avg</div>
-        <div class="value rr2">69.0</div>
-        <div class="detail boost">+3.7</div>
+        <div class="label">RR2 Post-Curve</div>
+        <div class="value rr2">79.7</div>
+        <div class="detail boost">+10.7</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">D/F Before</div>
+        <div class="value warn">4</div>
+        <div class="detail">all on RR2</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">D/F After</div>
+        <div class="value boost">0</div>
+        <div class="detail">floor = 60</div>
       </div>
     </div>
   </div>
@@ -187,11 +210,11 @@
     </div>
   </div>
 
-  <!-- Boost Impact -->
+  <!-- Curve Impact -->
   <div class="card">
-    <h2>Boost Impact: Students Moving Up a Grade</h2>
+    <h2>Curve Impact: Students Moving Up a Grade</h2>
     <div class="chart-container">
-      <canvas id="boostImpactChart"></canvas>
+      <canvas id="curveImpactChart"></canvas>
     </div>
   </div>
 
@@ -226,86 +249,86 @@
       <thead>
         <tr>
           <th></th>
-          <th class="num">RR1 Base</th>
-          <th class="num">RR1 Adj.</th>
-          <th class="num">RR2 Base</th>
-          <th class="num">RR2 Adj.</th>
-          <th class="num">Overall Base</th>
-          <th class="num">Overall Adj.</th>
+          <th class="num">RR1 Pre</th>
+          <th class="num">RR1 Post</th>
+          <th class="num">RR2 Pre</th>
+          <th class="num">RR2 Post</th>
+          <th class="num">Overall Pre</th>
+          <th class="num">Overall Post</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td>A (85-100)</td>
+          <td class="num">6</td>
+          <td class="num highlight">12</td>
           <td class="num">3</td>
           <td class="num highlight">6</td>
-          <td class="num">1</td>
-          <td class="num highlight">3</td>
-          <td class="num">4</td>
-          <td class="num highlight">9</td>
+          <td class="num">9</td>
+          <td class="num highlight">18</td>
         </tr>
         <tr>
           <td>B (70-84)</td>
-          <td class="num">9</td>
           <td class="num">7</td>
+          <td class="num">3</td>
           <td class="num">6</td>
-          <td class="num">6</td>
-          <td class="num">15</td>
+          <td class="num">7</td>
           <td class="num">13</td>
+          <td class="num">10</td>
         </tr>
         <tr>
           <td>C (50-69)</td>
-          <td class="num">6</td>
           <td class="num">5</td>
-          <td class="num">7</td>
+          <td class="num">3</td>
           <td class="num">5</td>
-          <td class="num">13</td>
+          <td class="num">5</td>
           <td class="num">10</td>
+          <td class="num">8</td>
         </tr>
         <tr>
           <td>D/F (0-49)</td>
           <td class="num">0</td>
           <td class="num">0</td>
           <td class="num">4</td>
+          <td class="num highlight">0</td>
           <td class="num">4</td>
-          <td class="num">4</td>
-          <td class="num">4</td>
+          <td class="num highlight">0</td>
         </tr>
         <tr style="border-top: 2px solid #334155;">
           <td><strong>Average</strong></td>
-          <td class="num"><strong>73.4</strong></td>
-          <td class="num highlight"><strong>75.8</strong></td>
-          <td class="num"><strong>65.3</strong></td>
-          <td class="num highlight"><strong>69.0</strong></td>
-          <td class="num"><strong>69.4</strong></td>
-          <td class="num highlight"><strong>72.4</strong></td>
+          <td class="num"><strong>77.2</strong></td>
+          <td class="num highlight"><strong>86.5</strong></td>
+          <td class="num"><strong>69.0</strong></td>
+          <td class="num highlight"><strong>79.7</strong></td>
+          <td class="num"><strong>73.1</strong></td>
+          <td class="num highlight"><strong>83.1</strong></td>
         </tr>
         <tr>
           <td>Median</td>
-          <td class="num">75.5</td>
-          <td class="num">76.0</td>
-          <td class="num">67.0</td>
-          <td class="num">70.5</td>
-          <td class="num">70.5</td>
+          <td class="num">77.5</td>
+          <td class="num">87.5</td>
+          <td class="num">72.5</td>
+          <td class="num">80.5</td>
           <td class="num">73.5</td>
+          <td class="num">84.5</td>
         </tr>
         <tr>
           <td>Min</td>
           <td class="num">51</td>
-          <td class="num">51</td>
+          <td class="num highlight">61</td>
           <td class="num">40</td>
+          <td class="num highlight">60</td>
           <td class="num">40</td>
-          <td class="num">40</td>
-          <td class="num">40</td>
+          <td class="num highlight">60</td>
         </tr>
         <tr>
           <td>Max</td>
-          <td class="num">90</td>
           <td class="num">95</td>
-          <td class="num">86</td>
+          <td class="num">100</td>
           <td class="num">96</td>
-          <td class="num">90</td>
+          <td class="num">100</td>
           <td class="num">96</td>
+          <td class="num">100</td>
         </tr>
       </tbody>
     </table>
@@ -315,10 +338,12 @@
 
 <script>
 // ── Data ──
-const rr1Base = [86,86,51,75,54,82,67,76,68,69,83,56,72,73,81,90,79,76];
-const rr1Adj  = [94,94,51,82,57,90,67,79,68,74,86,56,75,76,88,95,82,76];
-const rr2Base = [84,86,42,49,64,55,81,68,77,53,74,69,40,46,68,65,84,70];
-const rr2Adj  = [94,96,42,49,69,60,84,68,82,53,84,72,40,46,73,68,89,73];
+// Pre-curve = bonus-adjusted scores (what students currently have)
+// Post-curve = +10 flat curve, floor 60, cap 100
+const rr1Pre  = [94,94,51,82,57,90,67,79,68,74,86,56,75,76,88,95,82,76];
+const rr1Post = [100,100,61,92,67,100,77,89,78,84,96,66,85,86,98,100,92,86];
+const rr2Pre  = [94,96,42,49,69,60,84,68,82,53,84,72,40,46,73,68,89,73];
+const rr2Post = [100,100,60,60,79,70,94,78,92,63,94,82,60,60,83,78,99,83];
 
 function countGrades(scores) {
   const a = scores.filter(s => s >= 85).length;
@@ -341,10 +366,10 @@ new Chart(document.getElementById('gradeDistChart'), {
   data: {
     labels: cats,
     datasets: [
-      { label: 'RR1 Base', data: countGrades(rr1Base), backgroundColor: '#3b82f680', borderColor: '#3b82f6', borderWidth: 1 },
-      { label: 'RR1 Adj.', data: countGrades(rr1Adj), backgroundColor: '#60a5fa80', borderColor: '#60a5fa', borderWidth: 1 },
-      { label: 'RR2 Base', data: countGrades(rr2Base), backgroundColor: '#be185d80', borderColor: '#be185d', borderWidth: 1 },
-      { label: 'RR2 Adj.', data: countGrades(rr2Adj), backgroundColor: '#f472b680', borderColor: '#f472b6', borderWidth: 1 },
+      { label: 'RR1 Pre', data: countGrades(rr1Pre), backgroundColor: '#3b82f680', borderColor: '#3b82f6', borderWidth: 1 },
+      { label: 'RR1 Post', data: countGrades(rr1Post), backgroundColor: '#60a5fa80', borderColor: '#60a5fa', borderWidth: 1 },
+      { label: 'RR2 Pre', data: countGrades(rr2Pre), backgroundColor: '#be185d80', borderColor: '#be185d', borderWidth: 1 },
+      { label: 'RR2 Post', data: countGrades(rr2Post), backgroundColor: '#f472b680', borderColor: '#f472b6', borderWidth: 1 },
     ]
   },
   options: {
@@ -356,15 +381,14 @@ new Chart(document.getElementById('gradeDistChart'), {
     scales: {
       y: {
         beginAtZero: true,
-        ticks: { stepSize: 1 },
+        ticks: { stepSize: 2 },
         title: { display: true, text: 'Number of Students', font: { size: 11 } }
       }
     }
   }
 });
 
-// ── 2. Boost Impact Stacked ──
-// Show how many students moved up a grade category
+// ── 2. Curve Impact ──
 function gradeCategory(score) {
   if (score >= 85) return 'A';
   if (score >= 70) return 'B';
@@ -372,22 +396,17 @@ function gradeCategory(score) {
   return 'D/F';
 }
 
-let rr1MovedUp = 0, rr1Stayed = 0, rr2MovedUp = 0, rr2Stayed = 0;
-let rr1TotalBoost = 0, rr2TotalBoost = 0;
-let rr1BoostedCount = 0, rr2BoostedCount = 0;
+let rr1MovedUp = 0, rr1Same = 0;
+let rr2MovedUp = 0, rr2Same = 0;
 
 for (let i = 0; i < 18; i++) {
-  const diff1 = rr1Adj[i] - rr1Base[i];
-  const diff2 = rr2Adj[i] - rr2Base[i];
-  if (diff1 > 0) { rr1BoostedCount++; rr1TotalBoost += diff1; }
-  if (diff2 > 0) { rr2BoostedCount++; rr2TotalBoost += diff2; }
-  if (gradeCategory(rr1Adj[i]) !== gradeCategory(rr1Base[i])) rr1MovedUp++;
-  else rr1Stayed++;
-  if (gradeCategory(rr2Adj[i]) !== gradeCategory(rr2Base[i])) rr2MovedUp++;
-  else rr2Stayed++;
+  if (gradeCategory(rr1Post[i]) !== gradeCategory(rr1Pre[i])) rr1MovedUp++;
+  else rr1Same++;
+  if (gradeCategory(rr2Post[i]) !== gradeCategory(rr2Pre[i])) rr2MovedUp++;
+  else rr2Same++;
 }
 
-new Chart(document.getElementById('boostImpactChart'), {
+new Chart(document.getElementById('curveImpactChart'), {
   type: 'bar',
   data: {
     labels: ['RR1', 'RR2'],
@@ -395,22 +414,15 @@ new Chart(document.getElementById('boostImpactChart'), {
       {
         label: 'Moved up a grade',
         data: [rr1MovedUp, rr2MovedUp],
-        backgroundColor: '#34d39980',
+        backgroundColor: '#34d39990',
         borderColor: '#34d399',
         borderWidth: 1
       },
       {
-        label: 'Same grade (boosted)',
-        data: [rr1BoostedCount - rr1MovedUp, rr2BoostedCount - rr2MovedUp],
+        label: 'Same grade (still boosted)',
+        data: [rr1Same, rr2Same],
         backgroundColor: '#fbbf2480',
         borderColor: '#fbbf24',
-        borderWidth: 1
-      },
-      {
-        label: 'No boost',
-        data: [18 - rr1BoostedCount, 18 - rr2BoostedCount],
-        backgroundColor: '#64748b40',
-        borderColor: '#64748b',
         borderWidth: 1
       }
     ]
@@ -424,8 +436,10 @@ new Chart(document.getElementById('boostImpactChart'), {
         callbacks: {
           afterBody: function(ctx) {
             const idx = ctx[0].dataIndex;
-            if (idx === 0) return `\nTotal students boosted: ${rr1BoostedCount}/18\nAvg boost: ${(rr1TotalBoost/rr1BoostedCount).toFixed(1)} pts`;
-            return `\nTotal students boosted: ${rr2BoostedCount}/18\nAvg boost: ${(rr2TotalBoost/rr2BoostedCount).toFixed(1)} pts`;
+            const pre = idx === 0 ? rr1Pre : rr2Pre;
+            const post = idx === 0 ? rr1Post : rr2Post;
+            const avgBoost = (post.reduce((a,b) => a+b, 0) - pre.reduce((a,b) => a+b, 0)) / 18;
+            return `\nAll 18 students received curve\nAvg boost: +${avgBoost.toFixed(1)} pts`;
           }
         }
       }
@@ -442,10 +456,10 @@ new Chart(document.getElementById('boostImpactChart'), {
   }
 });
 
-// ── 3 & 4. Dot Strip Plots ──
-function makeDotChart(canvasId, base, adj, baseColor, adjColor, label) {
-  const sorted = base.map((b, i) => ({ base: b, adj: adj[i], boost: adj[i] - b }))
-    .sort((a, b) => a.base - b.base);
+// ── 3 & 4. Dot Strip Plots (stacked: pre-curve base + curve boost) ──
+function makeDotChart(canvasId, pre, post, baseColor, label) {
+  const sorted = pre.map((p, i) => ({ pre: p, post: post[i], boost: post[i] - p }))
+    .sort((a, b) => a.pre - b.pre);
 
   const labels = sorted.map((_, i) => `S${i + 1}`);
 
@@ -455,15 +469,15 @@ function makeDotChart(canvasId, base, adj, baseColor, adjColor, label) {
       labels: labels,
       datasets: [
         {
-          label: 'Base Score',
-          data: sorted.map(s => s.base),
+          label: 'Pre-Curve',
+          data: sorted.map(s => s.pre),
           backgroundColor: baseColor + '90',
           borderColor: baseColor,
           borderWidth: 1,
           borderRadius: 2,
         },
         {
-          label: 'Boost',
+          label: 'Curve Boost',
           data: sorted.map(s => s.boost),
           backgroundColor: '#34d39990',
           borderColor: '#34d399',
@@ -481,9 +495,8 @@ function makeDotChart(canvasId, base, adj, baseColor, adjColor, label) {
           callbacks: {
             label: function(ctx) {
               const i = ctx.dataIndex;
-              if (ctx.datasetIndex === 0) return `Base: ${sorted[i].base}`;
-              if (sorted[i].boost > 0) return `Boost: +${sorted[i].boost} → ${sorted[i].adj}`;
-              return 'No boost';
+              if (ctx.datasetIndex === 0) return `Pre-Curve: ${sorted[i].pre}`;
+              return `Curve: +${sorted[i].boost} → ${sorted[i].post}`;
             }
           }
         }
@@ -496,7 +509,7 @@ function makeDotChart(canvasId, base, adj, baseColor, adjColor, label) {
         y: {
           stacked: true,
           min: 30,
-          max: 100,
+          max: 105,
           ticks: { stepSize: 10 },
           title: { display: true, text: 'Score', font: { size: 11 } }
         }
@@ -505,18 +518,18 @@ function makeDotChart(canvasId, base, adj, baseColor, adjColor, label) {
   });
 }
 
-makeDotChart('rr1DotChart', rr1Base, rr1Adj, '#3b82f6', '#60a5fa', 'RR1');
-makeDotChart('rr2DotChart', rr2Base, rr2Adj, '#be185d', '#f472b6', 'RR2');
+makeDotChart('rr1DotChart', rr1Pre, rr1Post, '#3b82f6', 'RR1');
+makeDotChart('rr2DotChart', rr2Pre, rr2Post, '#be185d', 'RR2');
 
 // ── 5. Combined Histogram ──
 function buildHistBins(scores, binSize) {
   const bins = {};
-  for (let start = 30; start <= 95; start += binSize) {
+  for (let start = 30; start <= 100; start += binSize) {
     bins[start] = 0;
   }
   scores.forEach(s => {
     const bin = Math.floor(s / binSize) * binSize;
-    const key = Math.max(30, Math.min(bin, 95));
+    const key = Math.max(30, Math.min(bin, 100));
     bins[key] = (bins[key] || 0) + 1;
   });
   return bins;
@@ -524,14 +537,14 @@ function buildHistBins(scores, binSize) {
 
 const binSize = 5;
 const binLabels = [];
-for (let s = 30; s <= 95; s += binSize) {
-  binLabels.push(`${s}-${s + binSize - 1}`);
+for (let s = 30; s <= 100; s += binSize) {
+  binLabels.push(`${s}-${Math.min(s + binSize - 1, 100)}`);
 }
 
-const allBase = [...rr1Base, ...rr2Base];
-const allAdj = [...rr1Adj, ...rr2Adj];
-const baseBins = buildHistBins(allBase, binSize);
-const adjBins = buildHistBins(allAdj, binSize);
+const allPre = [...rr1Pre, ...rr2Pre];
+const allPost = [...rr1Post, ...rr2Post];
+const preBins = buildHistBins(allPre, binSize);
+const postBins = buildHistBins(allPost, binSize);
 
 new Chart(document.getElementById('histogramChart'), {
   type: 'bar',
@@ -539,16 +552,16 @@ new Chart(document.getElementById('histogramChart'), {
     labels: binLabels,
     datasets: [
       {
-        label: 'Base Scores',
-        data: Object.values(baseBins),
+        label: 'Pre-Curve',
+        data: Object.values(preBins),
         backgroundColor: '#64748b80',
         borderColor: '#64748b',
         borderWidth: 1,
         borderRadius: 2,
       },
       {
-        label: 'Adjusted Scores',
-        data: Object.values(adjBins),
+        label: 'Post-Curve',
+        data: Object.values(postBins),
         backgroundColor: '#34d39960',
         borderColor: '#34d399',
         borderWidth: 1,
@@ -560,8 +573,7 @@ new Chart(document.getElementById('histogramChart'), {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { size: 11 } } },
-      annotation: {}
+      legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { size: 11 } } }
     },
     scales: {
       y: {
